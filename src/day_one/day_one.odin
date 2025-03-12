@@ -32,10 +32,10 @@ parse_first :: proc(s: string) -> (int, int) {
                                             {"9", 9}, {"nine", 9}}
     for token in tokens {
         temp_pos := strings.index(s, token.w)
-        if temp_pos < pos {
+     if temp_pos < pos && temp_pos != -1 {
             first = token.v
             pos = temp_pos
-        } else {}
+        }
     }
     return first, pos
 }
@@ -55,11 +55,13 @@ parse_last :: proc(s: string) -> (int, int) {
                                             {"8", 8}, {"eight", 8},
                                             {"9", 9}, {"nine", 9}}
     for token in tokens {
-        temp_pos := strings.index(s, token.w)
-        if temp_pos >= pos {
+        temp_pos := strings.last_index(s, token.w)
+        if temp_pos >= pos && temp_pos != -1 {
             last = token.v
             pos = temp_pos
-        } else {}
+        } else {
+            continue
+        }
     }
     return last, pos
 }
@@ -75,13 +77,13 @@ parse_line :: proc(s: string) -> int {
     } else {
         value = first * 10 + last
     }
+    fmt.println("First:", first, "at position:", first_pos, "Last:", last, "at position:", last_pos, "Value:", value)
     return value
 }
 
 part_two :: proc(input: string) -> int {
     s := input
     lines := strings.count(s, "\n") + 1
-    first, last := 0, 0
     
     sum := 0
     
