@@ -20,76 +20,48 @@ print_solution :: proc(part, input: string, solution_proc: proc(string) -> int) 
 
 parse_first :: proc(s: string) -> (int, int) {
     first := 0
-    first_pos := len(s)
-    tokens := make(map[string]int)
-    defer delete(tokens)
-    
-    // Map initialization
-    tokens["1"]     = 1
-    tokens["one"]   = 1
-    tokens["2"]     = 2
-    tokens["two"]   = 2
-    tokens["3"]     = 3
-    tokens["three"] = 3
-    tokens["4"]     = 4
-    tokens["four"]  = 4
-    tokens["5"]     = 5
-    tokens["five"]  = 5
-    tokens["6"]     = 6
-    tokens["six"]   = 6
-    tokens["7"]     = 7
-    tokens["seven"] = 7
-    tokens["8"]     = 8
-    tokens["eight"] = 8
-    tokens["9"]     = 9
-    tokens["nine"]  = 9
-    
+    pos := len(s)
+    tokens : []struct{w: string, v: int} = {{"1", 1}, {"one", 1},
+                                            {"2", 2}, {"two", 2},
+                                            {"3", 3}, {"three", 3},
+                                            {"4", 4}, {"four", 4},
+                                            {"5", 5}, {"five", 5},
+                                            {"6", 6}, {"six", 6},
+                                            {"7", 7}, {"seven", 7},
+                                            {"8", 8}, {"eight", 8},
+                                            {"9", 9}, {"nine", 9}}
     for token in tokens {
-        temp_pos := strings.index(s, token)
-        temp := tokens[token]
-        if temp_pos < first_pos {
-            first = temp
-            first_pos = temp_pos
-        }
+        temp_pos := strings.index(s, token.w)
+        if temp_pos < pos {
+            first = token.v
+            pos = temp_pos
+        } else {}
     }
-    return first, first_pos
+    return first, pos
 }
+    
+
 
 parse_last :: proc(s: string) -> (int, int) {
     last := 0
-    last_pos := 0
-    tokens := make(map[string]int)
-    defer delete(tokens)
-    
-    // Map initialization
-    tokens["1"]     = 1
-    tokens["one"]   = 1
-    tokens["2"]     = 2
-    tokens["two"]   = 2
-    tokens["3"]     = 3
-    tokens["three"] = 3
-    tokens["4"]     = 4
-    tokens["four"]  = 4
-    tokens["5"]     = 5
-    tokens["five"]  = 5
-    tokens["6"]     = 6
-    tokens["six"]   = 6
-    tokens["7"]     = 7
-    tokens["seven"] = 7
-    tokens["8"]     = 8
-    tokens["eight"] = 8
-    tokens["9"]     = 9
-    tokens["nine"]  = 9
-    
+    pos := 0
+    tokens : []struct{w: string, v: int} = {{"1", 1}, {"one", 1},
+                                            {"2", 2}, {"two", 2},
+                                            {"3", 3}, {"three", 3},
+                                            {"4", 4}, {"four", 4},
+                                            {"5", 5}, {"five", 5},
+                                            {"6", 6}, {"six", 6},
+                                            {"7", 7}, {"seven", 7},
+                                            {"8", 8}, {"eight", 8},
+                                            {"9", 9}, {"nine", 9}}
     for token in tokens {
-        temp_pos := strings.index(s, token)
-        temp := tokens[token]
-        if temp_pos >= last_pos {
-            last = temp
-            last_pos = last_pos
-        }
+        temp_pos := strings.index(s, token.w)
+        if temp_pos >= pos {
+            last = token.v
+            pos = temp_pos
+        } else {}
     }
-    return last, last_pos
+    return last, pos
 }
 
 parse_line :: proc(s: string) -> int {
