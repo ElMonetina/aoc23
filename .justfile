@@ -6,7 +6,7 @@ build:
     odin run src -out="build/build.exe"
 
 linux-build:
-	odin run src .out="build/build"
+	odin run src -out="build/build"
 
 build-dbg:
     odin run src -debug -out="build/build-dbg.exe"
