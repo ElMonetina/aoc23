@@ -70,13 +70,8 @@ parse_line :: proc(s: string) -> int {
     first, first_pos := parse_first(s)
     last, last_pos := parse_last(s)
     
-    value := 0
-    
-    if first_pos == last_pos {
-        value = first
-    } else {
-        value = first * 10 + last
-    }
+    value := first * 10 + last
+
     fmt.println("First:", first, "at position:", first_pos, "Last:", last, "at position:", last_pos, "Value:", value)
     return value
 }
@@ -89,6 +84,7 @@ part_two :: proc(input: string) -> int {
     
     for i in 0..<lines {
         line, _ := strings.split_lines_iterator(&s)
+        fmt.print("Line:", i + 1, " ")
         sum += parse_line(line)
     }
     return sum
