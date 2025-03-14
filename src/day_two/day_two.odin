@@ -15,73 +15,71 @@ load_input :: proc (path: string) -> string {
     return string(input)
 }
 
-check_set :: proc(section: string) -> bool {
-    section_limits : []struct{num_cubes: int, color: string} = {{12, "red"}, {13, "green"}, {14, "blue"}}
+// Returns []int (number of cubes) and []string (color of cubes)
+line_tokenizer :: proc(line: string) -> ([]int, []string) {
+    s := line
+    n_arr : [dynamic]int
+    c_arr : [dynamic]string
+    defer delete(n_arr)
+    defer delete(c_arr)
+    tokens := strings.split_after(s, " ")
+    for &token in tokens {
+        token, _ = strings.remove(token, " ", 1)
+        token, _ = strings.remove(token, ",", 1)
+        token, _ = strings.remove(token, ";", 1)
+    }
+    for i in 0..<len(tokens) {
+        if i%2 == 0 {
+            n, _ := strconv.parse_int(tokens[i])
+            append(&n_arr, n)
+        } else {
+            c := tokens[i]
+            append(&c_arr, c)
+        }
+    }
+    return n_arr[:], c_arr[:]
+}
+
+// returns true if the pairs are all valid, false otherwise
+check_validity :: proc(n_arr: []int, c_arr: []string) -> bool {
     valid := true
-    if strings.contains(section, ";") {
-        sub_set := strings.split_after(section, ";")
-        for set in sub_set {
-            cleared_set, _ := strings.remove(set, " ", 1)
-            num_cubes, _ := strconv.parse_int(cleared_set[0:strings.index(cleared_set, " ")])
-            color := cleared_set[strings.index(cleared_set, " ")+1:]
-            fmt.println(cleared_set)
-            for tuple in section_limits {
-                if strings.contains(color, tuple.color) {
-                    if num_cubes > tuple.num_cubes {
-                        valid = false
-                    }
-                }
+    for i in 0..<len(n_arr) {
+        switch {
+        case c_arr[i] == "red" :
+            if n_arr[i] > 12 {
+                valid = false
             }
-        }
-    } else {
-        cleared_section, _ := strings.remove(section, " ", 1)
-        num_cubes, _ := strconv.parse_int(cleared_section[0:strings.index(cleared_section, " ")])
-        color := cleared_section[strings.index(cleared_section, " ")+1:]
-        fmt.println(cleared_section)
-        for tuple in section_limits {
-            if strings.contains(color, tuple.color) {
-                if num_cubes > tuple.num_cubes {
-                    valid = false
-                }
+        case c_arr[i] == "green":
+            if n_arr[i] > 13 {
+                valid = false
+            }
+        case c_arr[i] == "blue":
+            if n_arr[i] > 14 {
+                valid = false
             }
         }
     }
     return valid
 }
 
-check_line :: proc(s: string) -> bool {
-    sections, _ := strings.split_after(s, ",")
-    valid := false
-    for section in sections {
-        if !check_set(section) {
-            return false
-        }
-        valid = true
-    }
-    return valid
-}
-
-parse_line :: proc(s: string) -> int {
-    game_id := 0
-    valid := check_line(s[strings.index(s, ":")+1:])
+// parses the line
+parse_line :: proc(line: string, i: int) -> int {
+    num_cubes, cubes_color := line_tokenizer(line[strings.index(line, ":")+2:])
+    valid := check_validity(num_cubes, cubes_color)
+    id := 0
     if valid {
-        game_id, _ = strconv.parse_int(s[5:strings.index(s, ":")])
-    } else {
-        game_id = 0
+        id = i+1
     }
-    fmt.println(game_id)
-    return game_id
+    return id
 }
 
 part_one :: proc(input: string) -> int {
     s := input
-    lines := strings.count(s, "\n") + 1
-    
+    lines := strings.count(s, "\n") + 1 // +1 because the last line doesn't end with newline
     sum := 0
-
     for i in 0..<lines {
         line, _ := strings.split_lines_iterator(&s)
-        sum += parse_line(line)
+        sum += parse_line(line, i)
     }
     return sum
 }
