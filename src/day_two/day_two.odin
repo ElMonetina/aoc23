@@ -18,10 +18,12 @@ load_input :: proc (path: string) -> string {
 // Returns []int (number of cubes) and []string (color of cubes)
 line_tokenizer :: proc(line: string) -> ([]int, []string) {
     s := line
-    n_arr : [dynamic]int
-    c_arr : [dynamic]string
-    defer delete(n_arr)
-    defer delete(c_arr)
+    numbers_dyn : [dynamic]int
+    colors_dyn : [dynamic]string
+    defer {
+        clear(&colors_dyn)
+        clear(&numbers_dyn)
+    }
     tokens := strings.split_after(s, " ")
     for &token in tokens {
         token, _ = strings.remove(token, " ", 1)
@@ -31,46 +33,36 @@ line_tokenizer :: proc(line: string) -> ([]int, []string) {
     for i in 0..<len(tokens) {
         if i%2 == 0 {
             n, _ := strconv.parse_int(tokens[i])
-            append(&n_arr, n)
+            append(&numbers_dyn, n)
         } else {
             c := tokens[i]
-            append(&c_arr, c)
+            append(&colors_dyn, c)
         }
     }
-    return n_arr[:], c_arr[:]
+    numbers, colors := numbers_dyn[:],  colors_dyn[:]
+    return numbers, colors
 }
 
 // returns true if the pairs are all valid, false otherwise
-check_validity :: proc(n_arr: []int, c_arr: []string) -> bool {
+check_validity :: proc(numbers: []int, colors: []string) -> bool {
     valid := true
-    for i in 0..<len(n_arr) {
+    for i in 0..<len(numbers) {
         switch {
-        case c_arr[i] == "red" :
-            if n_arr[i] > 12 {
+        case colors[i] == "red" :
+            if numbers[i] > 12 {
                 valid = false
             }
-        case c_arr[i] == "green":
-            if n_arr[i] > 13 {
+        case colors[i] == "green":
+            if numbers[i] > 13 {
                 valid = false
             }
-        case c_arr[i] == "blue":
-            if n_arr[i] > 14 {
+        case colors[i] == "blue":
+            if numbers[i] > 14 {
                 valid = false
             }
         }
     }
     return valid
-}
-
-// parses the line
-parse_line :: proc(line: string, i: int) -> int {
-    num_cubes, cubes_color := line_tokenizer(line[strings.index(line, ":")+2:])
-    valid := check_validity(num_cubes, cubes_color)
-    id := 0
-    if valid {
-        id = i+1
-    }
-    return id
 }
 
 part_one :: proc(input: string) -> int {
@@ -79,7 +71,60 @@ part_one :: proc(input: string) -> int {
     sum := 0
     for i in 0..<lines {
         line, _ := strings.split_lines_iterator(&s)
-        sum += parse_line(line, i)
+        numbers, colors := line_tokenizer(line[strings.index(line, ":")+2:])
+        valid := check_validity(numbers, colors)
+        if valid {
+            sum += i+1
+        }
+    }
+    return sum
+}
+
+required_cubes :: proc(numbers: []int, colors: []string) -> ([]int, []int, []int) {
+    reds_dyn : [dynamic]int
+    greens_dyn : [dynamic]int
+    blues_dyn : [dynamic]int
+    defer {
+        clear(&blues_dyn)
+        clear(&greens_dyn)
+        clear(&reds_dyn)
+    }
+    for i in 0..<len(colors) {
+        switch {
+        case colors[i] == "red":
+            append(&reds_dyn, numbers[i])
+        case colors[i] == "green":
+            append(&greens_dyn, numbers[i])
+        case colors[i] == "blue":
+            append(&blues_dyn, numbers[i])
+        }
+    }
+    reds, greens, blues := reds_dyn[:], greens_dyn[:], blues_dyn[:]
+    return reds, greens, blues
+}
+
+find_max_int :: proc(numbers: []int) -> int {
+    max := 0
+    for n in numbers {
+        if n > max {
+            max = n
+        }
+    }
+    return max
+}
+
+part_two :: proc(input: string) -> int {
+    s := input
+    lines := strings.count(s, "\n") + 1
+    sum := 0
+    for i in 0..<lines {
+        line, _ := strings.split_lines_iterator(&s)
+        numbers, colors := line_tokenizer(line[strings.index(line, ":")+2:])
+        red_cubes, green_cubes, blue_cubes := required_cubes(numbers, colors)
+        max_red := find_max_int(red_cubes)
+        max_green := find_max_int(green_cubes)
+        max_blue := find_max_int(blue_cubes)
+        sum += max_red * max_green * max_blue 
     }
     return sum
 }
@@ -92,4 +137,5 @@ print_solution :: proc(part, input: string, solution_proc: proc(string) -> int) 
 run :: proc() {
     input := load_input("src/day_two/input.txt")
     print_solution("Part one:", input, part_one)
+    print_solution("Part two:", input, part_two)
 }
