@@ -15,6 +15,11 @@ load_input :: proc (path: string) -> string {
     return string(input)
 }
 
+print_solution :: proc(part, input: string, solution_proc: proc(string) -> int) {
+    solution := solution_proc(input)
+    fmt.println(part, solution)
+}
+
 // Returns []int (number of cubes) and []string (color of cubes)
 line_tokenizer :: proc(line: string) -> ([]int, []string) {
     s := line
@@ -127,11 +132,6 @@ part_two :: proc(input: string) -> int {
         sum += max_red * max_green * max_blue 
     }
     return sum
-}
-
-print_solution :: proc(part, input: string, solution_proc: proc(string) -> int) {
-    solution := solution_proc(input)
-    fmt.println(part, solution)
 }
 
 run :: proc() {
